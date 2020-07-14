@@ -1,0 +1,55 @@
+logging:
+  level:
+    root: DEBUG
+    org.springframework.web.reactive.function.client.ExchangeFunctions: DEBUG
+    org.hibernate.type.descriptor.sql: trace
+  file:
+    path: target/logs
+
+server:
+  port: 8090
+
+spring:
+  profiles:
+    active: local
+  jackson:
+    default-property-inclusion: non_empty
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+
+#Local
+---
+spring:
+  profiles: local
+  cloud:
+    function:
+      definition: direct;broadcast
+    stream:
+      bindings:
+        direct-in-0:
+          binder: rabbit
+          destination: p2p-topic
+          group: p2p-group
+          durableSubscription: true
+        broadcast-in-0:
+          destination: pubsub-topic
+  rabbitmq:
+    addresses: localhost
+    username: kongr
+    password: kongr
+
+
+#Prod
+---
+spring:
+  profiles: prod
+
+logging:
+  file:
+    max-size: 100MB
+    max-history: 30
+    path: logs
+  level:
+    root: INFO
+    org.springframework.web.reactive.function.client.ExchangeFunctions: INFO
+    org.hibernate.type.descriptor.sql: INFO
